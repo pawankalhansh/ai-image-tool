@@ -189,23 +189,78 @@ function applyBlur(ctx, canvas) {
 function removeWatermark(ctx, canvas) {
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imageData.data;
+  const width = canvas.width;
+  const height = canvas.height;
   
-  // Enhance contrast to reduce watermark visibility
-  const factor = 1.8;
-  const intercept = 128 * (1 - factor);
-  for (let i = 0; i < data.length; i += 4) {
-    if (i % 4 !== 3) {
-      data[i] = Math.max(0, Math.min(255, data[i] * factor + intercept));
+  // Multi-stage watermark removal algorithm
+  // Stage 1: Detect semi-transparent regions (typical watermarks)
+  const processedData = new Uint8ClampedArray(data);
+  
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const idx = (y * width + x) * 4;
+      const r = data[idx];
+      const g = data[idx + 1];
+      const b = data[idx + 2];
+      const a = data[idx + 3];
+      
+      // Calculate luminance
+      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+      
+      // Detect watermark-like pixels (semi-transparent or low contrast)
+      const isLikelyWatermark = (lum > 200 && lum < 255) || 
+                                 (r > 200 && g > 200 && b > 200) ||
+                                 (Math.abs(r - g) < 20 && Math.abs(g - b) < 20);
+      
+      if (isLikelyWatermark) {
+        // Inpainting: Use neighboring pixels to fill in
+        let sumR = 0, sumG = 0, sumB = 0, count = 0;
+        
+        for (let dy = -2; dy <= 2; dy++) {
+          for (let dx = -2; dx <= 2; dx++) {
+            if (dx === 0 && dy === 0) continue;
+            const nx = x + dx;
+            const ny = y + dy;
+            
+            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+              const nidx = (ny * width + nx) * 4;
+              const nr = data[nidx];
+              const ng = data[nidx + 1];
+              const nb = data[nidx + 2];
+              const nlum = 0.299 * nr + 0.587 * ng + 0.114 * nb;
+              
+              // Only use darker neighbor pixels (non-watermark)
+              if (nlum < 200) {
+                sumR += nr;
+                sumG += ng;
+                sumB += nb;
+                count++;
+              }
+            }
+          }
+        }
+        
+        if (count > 0) {
+          processedData[idx] = sumR / count;
+          processedData[idx + 1] = sumG / count;
+          processedData[idx + 2] = sumB / count;
+        }
+      }
     }
   }
   
-  // Apply slight blur to smooth watermark artifacts
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = canvas.width;
-  tempCanvas.height = canvas.height;
-  const tempCtx = tempCanvas.getContext('2d');
-  tempCtx.putImageData(imageData, 0, 0);
+  // Stage 2: Enhance image quality
+  for (let i = 0; i < processedData.length; i += 4) {
+    // Increase contrast slightly
+    const factor = 1.2;
+    const intercept = 128 * (1 - factor);
+    
+    processedData[i] = Math.max(0, Math.min(255, processedData[i] * factor + intercept));
+    processedData[i + 1] = Math.max(0, Math.min(255, processedData[i + 1] * factor + intercept));
+    processedData[i + 2] = Math.max(0, Math.min(255, processedData[i + 2] * factor + intercept));
+  }
   
+  imageData.data.set(processedData);
   ctx.putImageData(imageData, 0, 0);
 }
 
