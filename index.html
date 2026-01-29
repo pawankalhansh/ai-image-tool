@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Tool - Fast & Free Processing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="logo">✨ AI Image Tool</h1>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="https://github.com/pawankalhansh/ai-image-tool" target="_blank">GitHub</a>
+                <a href="#how-it-works">How It Works</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <h1>AI Image Processing Tool</h1>
+            <p>Fast, free, and completely private processing</p>
+        </section>
+
+        <section class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <h2>Click to upload or drag images here</h2>
+                <p>Supports JPG, PNG, WebP</p>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            <div id="preview" class="preview-container" style="display: none;">
+                <img id="previewImage" alt="Preview">
+                <button id="downloadBtn" class="btn-primary">Download Processed Image</button>
+                <button id="resetBtn" class="btn-secondary">Reset</button>
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <h2>Why Choose Our Tool?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Lightning Fast</h3>
+                    <p>Millisecond processing with modern browser technology</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Privacy First</h3>
+                    <p>Pure client-side processing - your data never leaves your device</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>100% Free</h3>
+                    <p>No registration, no limits, no hidden fees</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="how-it-works" id="how-it-works">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Select Image</h3>
+                    <p>Upload or drag your image</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Process</h3>
+                    <p>Automatic processing in milliseconds</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Download</h3>
+                    <p>Get your processed image instantly</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 AI Image Tool. All rights reserved.</p>
+        <p><a href="https://github.com/pawankalhansh/ai-image-tool" target="_blank">View on GitHub</a></p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
