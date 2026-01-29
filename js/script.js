@@ -189,71 +189,28 @@ function applyBlur(ctx, canvas) {
 function removeWatermark(ctx, canvas) {
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imageData.data;
-  const width = canvas.width;
-function removeWatermark(ctx, canvas) {
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imageData.data;
-  const width = canvas.width;
-  const height = canvas.height;
   
-  // Constants from the original Gemini watermark remover
-  const ALPHA_THRESHOLD = 0.002;
-  const MAX_ALPHA = 0.99;
-  const LOGO_VALUE = 255; // White watermark
-  
-  // Detect watermark position (Gemini watermark is in the bottom-right corner)
-  let logoSize, marginRight, marginBottom;
-  if (width > 1024 && height > 1024) {
-    logoSize = 96;
-    marginRight = 64;
-    marginBottom = 64;
-  } else {
-    logoSize = 48;
-    marginRight = 32;
-    marginBottom = 32;
-  }
-  
-  const wmX = width - marginRight - logoSize;
-  const wmY = height - marginBottom - logoSize;
-  
-  // Process only the watermark area
-  for (let row = 0; row < logoSize; row++) {
-    for (let col = 0; col < logoSize; col++) {
-      const x = wmX + col;
-      const y = wmY + row;
-      
-      if (x >= 0 && x < width && y >= 0 && y < height) {
-        const idx = (y * width + x) * 4;
-        
-        const r = data[idx];
-        const g = data[idx + 1];
-        const b = data[idx + 2];
-        
-        // Estimate alpha from brightness (lighter = more watermark)
-        const maxChannel = Math.max(r, g, b);
-        let alpha = maxChannel / 255.0;
-        
-        // Skip very small alpha values (noise)
-        if (alpha < ALPHA_THRESHOLD) {
-          continue;
-        }
-        
-        // Limit alpha to avoid division by near-zero
-        alpha = Math.min(alpha, MAX_ALPHA);
-        const oneMinusAlpha = 1.0 - alpha;
-        
-        // Apply reverse alpha blending: original = (watermarked - α × logo) / (1 - α)
-        for (let c = 0; c < 3; c++) {
-          const watermarked = data[idx + c];
-          const original = (watermarked - alpha * LOGO_VALUE) / oneMinusAlpha;
-          data[idx + c] = Math.max(0, Math.min(255, Math.round(original)));
-        }
-      }
+  // Enhance contrast to reduce watermark visibility
+  const factor = 1.8;
+  const intercept = 128 * (1 - factor);
+  for (let i = 0; i < data.length; i += 4) {
+    if (i % 4 !== 3) {
+      data[i] = Math.max(0, Math.min(255, data[i] * factor + intercept));
     }
   }
   
+  // Apply slight blur to smooth watermark artifacts
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  tempCtx.putImageData(imageData, 0, 0);
+  
   ctx.putImageData(imageData, 0, 0);
-}eData(0, 0, canvas.width, canvas.height);
+}
+
+function applyInvert(ctx, canvas) {
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imageData.data;
   for (let i = 0; i < data.length; i += 4) {
     data[i] = 255 - data[i];
